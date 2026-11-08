@@ -17,16 +17,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BizException.class)
     public ResponseEntity<ApiResponse<Void>> handleBizException(BizException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(exception.getStatus())
                 .body(ApiResponse.fail(exception.getCode(), exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException exception) {
         FieldError fieldError = exception.getBindingResult().getFieldError();
-        String message = fieldError == null
+        String message = fieldError == null || fieldError.getDefaultMessage() == null
                 ? "请求参数校验失败"
-                : fieldError.getField() + ": " + fieldError.getDefaultMessage();
+                : fieldError.getDefaultMessage();
         return ResponseEntity.badRequest().body(ApiResponse.fail(400, message));
     }
 
